@@ -5,6 +5,7 @@
 use crate::{
     base_parsers::{digits, not_words, word},
     ldlm::LDLM,
+    mds::mds_parser::MDS,
     oss::oss_parser::OST,
     time::time_triple,
     types::Stat,
@@ -12,7 +13,7 @@ use crate::{
 use combine::{
     between,
     error::ParseError,
-    many,
+    many, optional,
     parser::{
         char::{newline, spaces, string},
         choice::or,
@@ -27,7 +28,7 @@ where
     I::Error: ParseError<I::Token, I::Range, I::Position>,
 {
     (
-        not_words(&["obdfilter", "mgs", "mdt", LDLM, OST]).skip(spaces()),
+        not_words(&["obdfilter", "mgs", "mdt", LDLM, OST, MDS]).skip(spaces()),
         digits(),
         spaces().with(string("samples")),
         spaces().with(between(token('['), token(']'), word())),
@@ -108,7 +109,7 @@ where
     I: Stream<Token = char>,
     I::Error: ParseError<I::Token, I::Range, I::Position>,
 {
-    (newline().with(time_triple()), many(stat())).map(|(_, xs)| xs)
+    (optional(newline()).with(time_triple()), many(stat())).map(|(_, xs)| xs)
 }
 
 #[cfg(test)]
