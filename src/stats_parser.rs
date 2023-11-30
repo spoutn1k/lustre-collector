@@ -13,7 +13,7 @@ use crate::{
 use combine::{
     between,
     error::ParseError,
-    many,
+    many, optional,
     parser::{
         char::{newline, spaces, string},
         choice::or,
@@ -109,7 +109,7 @@ where
     I: Stream<Token = char>,
     I::Error: ParseError<I::Token, I::Range, I::Position>,
 {
-    (newline().with(time_triple()), many(stat())).map(|(_, xs)| xs)
+    (optional(newline()).with(time_triple()), many(stat())).map(|(_, xs)| xs)
 }
 
 #[cfg(test)]
